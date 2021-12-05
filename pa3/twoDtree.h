@@ -125,6 +125,7 @@ public:
     * average color stored in the node.
     */
    PNG render();
+   HSLAPixel getPixFromTree(int x, int y, Node * node);
 
    /*
     *  Prune function trims subtrees as high as possible in the tree.
@@ -136,6 +137,7 @@ public:
    * You may want a recursive helper function for this one.
     */
    void prune(double tol);
+   void prune_recursive(double tol, HSLAPixel rootpix, Node * node);
 
    /* =============== end of public PA3 FUNCTIONS =========================*/
 
@@ -167,6 +169,8 @@ private:
     */
    void clear();
 
+   void clear_recursive(Node * root);
+
    /**
    * Copies the parameter other twoDtree into the current twoDtree.
    * Does not free any memory. Called by copy constructor and op=.
@@ -174,6 +178,7 @@ private:
    * @param other The twoDtree to be copied.
    */
    void copy(const twoDtree & other);
+   void copy_recursive(Node * from, Node * to);
 
    /**
    * Private helper function for the constructor. Recursively builds

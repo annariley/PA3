@@ -36,5 +36,5 @@ double stats::entropy(pair<int,int> ul, pair<int,int> lr){
                                     * log2((double) distn[i]/(double) area);
     */
     
-    return  -1 * entropy;
+    return  -1 ;//* entropy;
 }

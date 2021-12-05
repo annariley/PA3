@@ -37,19 +37,77 @@ twoDtree & twoDtree::operator=(const twoDtree & rhs){
 
 /* twoDtree constructor */
 twoDtree::twoDtree(PNG & imIn){ 
-/* your code here */
+	this->height=imIn.height();
+	this->width=imIn.width();
+	stats s = stats(imIn);
+	this->root = buildTree(s, pair<int,int>(0,0), pair<int,int>(imIn.width(),imIn.height()), 1);
 }
 
 /* buildTree helper for twoDtree constructor */
 twoDtree::Node * twoDtree::buildTree(stats & s, pair<int,int> ul, pair<int,int> lr, bool vert) {
+	if(ul.first>=lr.first && ul.second >= lr.second){
+		return NULL;
+	}
+	if(ul.first>lr.first || ul.second > lr.second){
+		return NULL;
+	}
 
-/* your code here */
+	pair<int,int> newul = ul;
+	pair<int,int> newlr = lr;
+	double minEntropy = 2*s.entropy(ul,lr);
 
+	if(ul.second==lr.second || vert){ //vertical
+		for(int i = ul.first; i < lr.first; i++){
+			int w1 = s.rectArea(ul,pair<int,int>(i,lr.second));
+			int w2 = s.rectArea(pair<int,int>(i+1,ul.second),lr);
+			int weightedSum = (w1*(s.entropy(ul,pair<int,int>(i,lr.second)))+w2*(s.entropy(pair<int,int>(i+1,ul.second),lr)))/(w1+w2);
+			if(weightedSum<=minEntropy){
+				minEntropy = weightedSum;
+				newlr.first = i;
+				newul.first = i+1;
+			}
+		}
+		
+	} else{ //horizontal
+		for(int i = ul.second; i < lr.second; i++){
+			int w1 = s.rectArea(ul,pair<int,int>(lr.first,i));
+			int w2 = s.rectArea(pair<int,int>(ul.first,i+1),lr);
+			int weightedSum = (w1*(s.entropy(ul,pair<int,int>(lr.first,i)))+w2*(s.entropy(pair<int,int>(ul.first,i+1),lr)))/(w1+w2);
+			if(weightedSum<=minEntropy){
+				minEntropy = weightedSum;
+				newlr.second = i;
+				newul.second = i+1;
+			}
+		}
+	}
+
+
+	Node * node = new Node(ul,lr,s.getAvg(ul,lr));
+	node->LT = buildTree(s,ul,newlr,!vert);
+	node->RB = buildTree(s,newul,lr,!vert);
+	return node;
 }
 
 /* render your twoDtree into a png */
 PNG twoDtree::render(){
-/* your code here */
+	PNG retPNG = PNG(this->width,this->height);
+	for(int y = 0; y < this->height; y++){
+		for(int x = 0; x < this->width; x++){
+			HSLAPixel * pix = retPNG.getPixel(x,y);
+			*pix = getPixFromTree(x,y, this->root);
+		}
+	}
+	return retPNG;
+}
+HSLAPixel twoDtree::getPixFromTree(int x, int y, Node * node){
+	if(node->LT==NULL &&node->RB==NULL){ //&& x>=node->upLeft.first && x<=node->lowRight.first && y>=node->upLeft.second && y<=node->lowRight.second){
+		return node->avg;
+	}
+	if(x>=node->LT->upLeft.first && x<=node->LT->lowRight.first && y>=node->LT->upLeft.second && y<=node->LT->lowRight.second){
+		getPixFromTree(x,y,node->LT);
+	}else if(x>=node->RB->upLeft.first && x<=node->RB->lowRight.first && y>=node->RB->upLeft.second && y<=node->RB->lowRight.second){
+		getPixFromTree(x,y,node->RB);
+	}
 }
 
 /* prune function modifies tree by cutting off
@@ -58,23 +116,51 @@ PNG twoDtree::render(){
  * of the subtree
  */
 void twoDtree::prune(double tol){
-
-/* your code here */
-
+	prune_recursive(tol,this->root->avg, this->root);
+}
+void twoDtree::prune_recursive(double tol, HSLAPixel rootpix, Node * node){
+	if(node == NULL) return;
+	if(rootpix.dist(node->avg)>tol){
+		clear_recursive(node);
+		return;
+	}
+	prune_recursive(tol,rootpix,node->LT);
+	prune_recursive(tol,rootpix,node->RB);
 }
 
 /* helper function for destructor and op= */
 /* frees dynamic memory associated w the twoDtree */
 void twoDtree::clear() {
- /* your code here */
+	clear_recursive(this->root);
+}
+
+void twoDtree::clear_recursive(Node * root){
+	if(root->LT==NULL && root->RB==NULL){
+		root = NULL;
+		delete root;
+		return;
+	}
+	clear_recursive(root->LT);
+	clear_recursive(root->RB);
+	root = NULL;
+	delete root;
+	return;
+
 }
 
 
 /* helper function for copy constructor and op= */
 void twoDtree::copy(const twoDtree & orig){
-
-/* your code here */
-
+	copy_recursive(orig.root,this->root);
+}
+void twoDtree::copy_recursive(Node * from, Node * to){
+	if(from==NULL){
+		return;
+	}
+	to = new Node(from->upLeft,from->lowRight,from->avg);
+	copy_recursive(from->LT,to->LT);
+	copy_recursive(from->RB,to->RB);
+	return;
 }
 
 
