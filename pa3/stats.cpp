@@ -4,27 +4,60 @@
 
 stats::stats(PNG & im){
 
-    for(int x = 0; x < im.width(); x++) {
-        for(int y = 0; y < im.height(); y++) {
+    HSLAPixel *pixel;
 
-            sumHueX[x][y] = 0;
-            sumHueY[x][y] = 0;
-            sumSat[x][y] = 0;
-            sumLum[x][y] = 0;
+    vector<double> colSumHueX;
+    vector<double> colSumHueY;
+    vector<double> colSumSat;
+    vector<double> colSumLum;
 
-            for(int xSum = 0; xSum < x; xSum++) {
-                for(int ySum = 0; ySum < y; ySum++) {
+    vector<int> tempHist;
+    vector<vector<int>> colHist;
 
-                    HSLAPixel *pixel = im.getPixel(xSum, ySum);
+    for(int x = 0; x < (int)im.width(); x++) {
+
+        for(int y = 0; y < (int)im.height(); y++) {
+
+            double tempSumHueX = 0;
+            double tempSumHueY = 0;
+            double tempSumSat = 0;
+            double tempSumLum = 0;
+
+            // initialize an empty, 36-bin hist
+            for(int i = 0; i < 36; i++) {
+                tempHist.push_back(0);
+            }
+
+            for(int xSum = 0; xSum <= x; xSum++) {
+                for(int ySum = 0; ySum <= y; ySum++) {
+
+                    pixel = im.getPixel(xSum, ySum);
 
                     double hRad = pixel->h * PI / 180;
-                    sumHueX[x][y] += cos(hRad) * 180 / PI;
-                    sumHueY[x][y] += sin(hRad) * 180 / PI;
-                    sumSat[x][y] += pixel->s;
-                    sumLum[x][y] += pixel->l;
+                    tempSumHueX += cos(hRad) * 180 / PI;
+                    tempSumHueY += sin(hRad) * 180 / PI;
+                    tempSumSat += pixel->s;
+                    tempSumLum += pixel->l;
+
+                    int bin = (int)(pixel->h / 10);
+                    tempHist[bin] = tempHist[bin] + 1;
                 }
             }
+
+            colSumHueX.push_back(tempSumHueX);
+            colSumHueY.push_back(tempSumHueY);
+            colSumSat.push_back(tempSumSat);
+            colSumLum.push_back(tempSumLum);
+
+            colHist.push_back(tempHist);
         }
+        
+        this->sumHueX.push_back(colSumHueX);
+        this->sumHueY.push_back(colSumHueY);
+        this->sumSat.push_back(colSumSat);
+        this->sumLum.push_back(colSumLum);
+
+        this->hist.push_back(colHist);
     }
 
 }
@@ -37,17 +70,19 @@ long stats::rectArea(pair<int,int> ul, pair<int,int> lr){
 
 HSLAPixel stats::getAvg(pair<int,int> ul, pair<int,int> lr){
 
-    HSLAPixel avg = HSLAPixel();
+    HSLAPixel avg;
 
     double xHue, yHue;
     
-    xHue = sumHueX[ul.first-1][ul.second-1] - sumHueX[lr.first][lr.second] / rectArea(ul,lr);
-    yHue = sumHueY[ul.first-1][ul.second-1] - sumHueY[lr.first][lr.second] / rectArea(ul,lr);
+    xHue = (this->sumHueX[lr.first][lr.second] - this->sumHueX[lr.first-1][lr.second] - this->sumHueX[ul.first][ul.second-1] + this->sumHueX[ul.first-1][ul.second-1]) / rectArea(ul,lr);
+    yHue = (this->sumHueY[lr.first][lr.second] - this->sumHueY[lr.first-1][lr.second] - this->sumHueY[ul.first][ul.second-1] + this->sumHueY[ul.first-1][ul.second-1]) / rectArea(ul,lr);
     
     avg.h = atan2(yHue, xHue);
-    avg.s = sumSat[ul.first-1][ul.second-1] - sumSat[lr.first][lr.second] / rectArea(ul,lr);
-    avg.l = sumLum[ul.first-1][ul.second-1] - sumLum[lr.first][lr.second] / rectArea(ul,lr);
-    
+    avg.s = (this->sumSat[lr.first][lr.second] - this->sumSat[lr.first-1][lr.second] - this->sumSat[ul.first][ul.second-1] + this->sumSat[ul.first-1][ul.second-1]) / rectArea(ul,lr);
+    avg.l = (this->sumLum[lr.first][lr.second] - this->sumLum[lr.first-1][lr.second] - this->sumLum[ul.first][ul.second-1] + this->sumLum[ul.first-1][ul.second-1]) / rectArea(ul,lr);
+    avg.a = 1.0;
+
+    return avg;
 }
 
 double stats::entropy(pair<int,int> ul, pair<int,int> lr){
