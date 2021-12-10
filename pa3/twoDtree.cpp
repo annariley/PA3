@@ -65,9 +65,9 @@ twoDtree::Node * twoDtree::buildTree(stats & s, pair<int,int> ul, pair<int,int> 
 	double minEntropy = 1000000000;//2*s.entropy(ul,lr);
 	if(ul.second==lr.second || vert){ //vertical
 		for(int i = ul.first; i < lr.first; i++){
-			int w1 = s.rectArea(ul,pair<int,int>(i,lr.second));
-			int w2 = s.rectArea(pair<int,int>(i+1,ul.second),lr);
-			int weightedSum = ((w1*(s.entropy(ul,pair<int,int>(i,lr.second))))+(w2*(s.entropy(pair<int,int>(i+1,ul.second),lr))))/(w1+w2);
+			double w1 = s.rectArea(ul,pair<int,int>(i,lr.second));
+			double w2 = s.rectArea(pair<int,int>(i+1,ul.second),lr);
+			double weightedSum = ((w1*(s.entropy(ul,pair<int,int>(i,lr.second))))+(w2*(s.entropy(pair<int,int>(i+1,ul.second),lr))))/(w1+w2);
 			if(weightedSum<=minEntropy){
 				cout << weightedSum << endl;
 				minEntropy = weightedSum;
