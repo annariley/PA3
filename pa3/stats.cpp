@@ -1,6 +1,5 @@
 
 #include "stats.h"
-// #include <math.h>
 
 stats::stats(PNG & im){
 
@@ -72,14 +71,51 @@ HSLAPixel stats::getAvg(pair<int,int> ul, pair<int,int> lr){
 
     HSLAPixel avg;
 
-    double xHue, yHue;
+    cout << sumSat[0][0] << endl;
+    cout << sumSat[0][1] << endl;
+    cout << sumSat[1][0] << endl;
+    cout << sumSat[1][1] << endl;
+
+    double xHue = this->sumHueX[lr.first][lr.second];
+    double yHue = this->sumHueY[lr.first][lr.second];
+    double sat = this->sumSat[lr.first][lr.second];
+    double lum = this->sumLum[lr.first][lr.second];
+
+    if(ul.first > 0 && ul.second == 0) {
+        xHue -= this->sumHueX[lr.first-1][lr.second];
+        yHue -= this->sumHueY[lr.first-1][lr.second];
+        sat -= this->sumSat[lr.first-1][lr.second];
+        lum -= this->sumLum[lr.first-1][lr.second];
+    }
+    else if(ul.first == 0 && ul.second > 0) {
+        xHue -= this->sumHueX[lr.first-1][lr.second];
+        yHue -= this->sumHueY[lr.first-1][lr.second];
+        sat -= this->sumSat[lr.first-1][lr.second];
+        lum -= this->sumLum[lr.first-1][lr.second];
+    }
+    else if(ul.first > 0 && ul.second > 0) {
+        xHue -= this->sumHueX[lr.first-1][lr.second];
+        xHue -= this->sumHueX[lr.first-1][lr.second];
+        xHue += this->sumHueX[ul.first-1][ul.second-1];
+
+        yHue -= this->sumHueY[lr.first-1][lr.second];
+        yHue -= this->sumHueY[lr.first-1][lr.second];
+        yHue += this->sumHueY[ul.first-1][ul.second-1];
+
+        sat -= this->sumSat[lr.first-1][lr.second];
+        sat -= this->sumSat[lr.first-1][lr.second];
+        sat += this->sumSat[ul.first-1][ul.second-1];
+
+        lum -= this->sumLum[lr.first-1][lr.second];
+        lum -= this->sumLum[lr.first-1][lr.second];
+        lum += this->sumLum[ul.first-1][ul.second-1];
+    }
+
+    double area = rectArea(ul,lr);
     
-    xHue = (this->sumHueX[lr.first][lr.second] - this->sumHueX[lr.first-1][lr.second] - this->sumHueX[ul.first][ul.second-1] + this->sumHueX[ul.first-1][ul.second-1]) / rectArea(ul,lr);
-    yHue = (this->sumHueY[lr.first][lr.second] - this->sumHueY[lr.first-1][lr.second] - this->sumHueY[ul.first][ul.second-1] + this->sumHueY[ul.first-1][ul.second-1]) / rectArea(ul,lr);
-    
-    avg.h = atan2(yHue, xHue);
-    avg.s = (this->sumSat[lr.first][lr.second] - this->sumSat[lr.first-1][lr.second] - this->sumSat[ul.first][ul.second-1] + this->sumSat[ul.first-1][ul.second-1]) / rectArea(ul,lr);
-    avg.l = (this->sumLum[lr.first][lr.second] - this->sumLum[lr.first-1][lr.second] - this->sumLum[ul.first][ul.second-1] + this->sumLum[ul.first-1][ul.second-1]) / rectArea(ul,lr);
+    avg.h = atan2(yHue/area, xHue/area) * 180 / PI;
+    avg.s = sat / area;
+    avg.l = lum / area;
     avg.a = 1.0;
 
     return avg;
