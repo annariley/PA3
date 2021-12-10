@@ -40,28 +40,36 @@ twoDtree::twoDtree(PNG & imIn){
 	this->height=imIn.height();
 	this->width=imIn.width();
 	stats s = stats(imIn);
-	this->root = buildTree(s, pair<int,int>(0,0), pair<int,int>(imIn.width(),imIn.height()), 1);
+	this->root = buildTree(s, pair<int,int>(0,0), pair<int,int>(imIn.width()-1,imIn.height()-1), 1);
 }
 
 /* buildTree helper for twoDtree constructor */
 twoDtree::Node * twoDtree::buildTree(stats & s, pair<int,int> ul, pair<int,int> lr, bool vert) {
-	if(ul.first>=lr.first && ul.second >= lr.second){
+	if (ul == lr) return new Node(ul,lr,s.getAvg(ul,lr));
+	/*if(ul.first>=lr.first && ul.second >= lr.second){
 		return NULL;
 	}
 	if(ul.first>lr.first || ul.second > lr.second){
 		return NULL;
-	}
-
+	}*/
+	cout << "upper left: ";
+	cout << ul.first;
+	cout << ", ";
+	cout << ul.second << endl;
+	cout << "lower right: ";
+	cout << lr.first;
+	cout << ", ";
+	cout << lr.second << endl;
 	pair<int,int> newul = ul;
 	pair<int,int> newlr = lr;
-	double minEntropy = 2*s.entropy(ul,lr);
-
+	double minEntropy = 1000000000;//2*s.entropy(ul,lr);
 	if(ul.second==lr.second || vert){ //vertical
 		for(int i = ul.first; i < lr.first; i++){
 			int w1 = s.rectArea(ul,pair<int,int>(i,lr.second));
 			int w2 = s.rectArea(pair<int,int>(i+1,ul.second),lr);
-			int weightedSum = (w1*(s.entropy(ul,pair<int,int>(i,lr.second)))+w2*(s.entropy(pair<int,int>(i+1,ul.second),lr)))/(w1+w2);
+			int weightedSum = ((w1*(s.entropy(ul,pair<int,int>(i,lr.second))))+(w2*(s.entropy(pair<int,int>(i+1,ul.second),lr))))/(w1+w2);
 			if(weightedSum<=minEntropy){
+				cout << weightedSum << endl;
 				minEntropy = weightedSum;
 				newlr.first = i;
 				newul.first = i+1;
@@ -80,7 +88,6 @@ twoDtree::Node * twoDtree::buildTree(stats & s, pair<int,int> ul, pair<int,int> 
 			}
 		}
 	}
-
 
 	Node * node = new Node(ul,lr,s.getAvg(ul,lr));
 	node->LT = buildTree(s,ul,newlr,!vert);

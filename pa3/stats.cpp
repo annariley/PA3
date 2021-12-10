@@ -4,9 +4,7 @@
 #define NUM_BINS 36
 
 stats::stats(PNG & im){
-
     HSLAPixel *pixel;
-
     vector<double> colSumHueX;
     vector<double> colSumHueY;
     vector<double> colSumSat;
@@ -16,7 +14,6 @@ stats::stats(PNG & im){
     vector<vector<int>> colHist;
 
     for(int x = 0; x < (int)im.width(); x++) {
-
         colSumHueX.clear();
         colSumHueY.clear();
         colSumSat.clear();
@@ -25,7 +22,6 @@ stats::stats(PNG & im){
         colHist.clear();
 
         for(int y = 0; y < (int)im.height(); y++) {
-
             double tempSumHueX = 0;
             double tempSumHueY = 0;
             double tempSumSat = 0;
@@ -39,7 +35,10 @@ stats::stats(PNG & im){
             }
 
             for(int xSum = 0; xSum <= x; xSum++) {
+                //cout << "line 42" <<endl;
                 for(int ySum = 0; ySum <= y; ySum++) {
+                    //cout << ySum << endl;
+                    //cout << y << endl;
 
                     pixel = im.getPixel(xSum, ySum);
 
@@ -135,9 +134,7 @@ double stats::entropy(pair<int,int> ul, pair<int,int> lr){
     *  if any bin in the distn has frequency 0, then do not add that 
     *  term to the entropy total. see .h file for more details.
     */
-
     vector<int> distn;
-
     for(int i = 0; i < NUM_BINS; i++) {
         distn.push_back(this->hist[lr.first][lr.second][i]);
     }
@@ -164,7 +161,6 @@ double stats::entropy(pair<int,int> ul, pair<int,int> lr){
 
     double E = 0;
     double area = rectArea(ul,lr);
-
     for(int i = 0; i < NUM_BINS; i++) {
         if (distn[i] > 0 ) 
             E -= ((double) distn[i]/(double) area) * log2((double) distn[i]/(double) area);
