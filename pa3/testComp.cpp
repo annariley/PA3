@@ -61,15 +61,14 @@ TEST_CASE("stats::basic entropy","[weight=1][part=stats]"){
 
     REQUIRE(result == 2);
 }
-/*
+
 TEST_CASE("twoDtree::basic ctor render","[weight=1][part=twoDtree]"){
     PNG img;
     img.readFromFile("images/ada.png");
-
     twoDtree t1(img);
-
+    cout << "got to line 71" << endl;
     PNG out = t1.render();
-
+    cout << "got to line 73" << endl;
     REQUIRE(out==img);
 }
 TEST_CASE("twoDtree::basic copy","[weight=1][part=twoDtree]"){
@@ -83,7 +82,7 @@ TEST_CASE("twoDtree::basic copy","[weight=1][part=twoDtree]"){
 
     REQUIRE(out==img);
 }
-
+/*
 TEST_CASE("twoDtree::basic prune","[weight=1][part=twoDtree]"){
     PNG img;
     img.readFromFile("images/color.png");
