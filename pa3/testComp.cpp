@@ -61,7 +61,7 @@ TEST_CASE("stats::basic entropy","[weight=1][part=stats]"){
 
     REQUIRE(result == 2);
 }
-*/
+
 TEST_CASE("twoDtree::basic ctor render","[weight=1][part=twoDtree]"){
     PNG img;
     img.readFromFile("images/ada.png");
@@ -98,4 +98,4 @@ TEST_CASE("twoDtree::basic prune","[weight=1][part=twoDtree]"){
 
     REQUIRE(expected==result);
 }
-
+*/

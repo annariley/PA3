@@ -15,6 +15,11 @@ stats::stats(PNG & im){
 
     for(int x = 0; x < (int)im.width(); x++) {
 
+        colSumHueX.clear();
+        colSumHueY.clear();
+        colSumSat.clear();
+        colSumLum.clear();
+
         for(int y = 0; y < (int)im.height(); y++) {
 
             double tempSumHueX = 0;
@@ -50,7 +55,7 @@ stats::stats(PNG & im){
 
             colHist.push_back(tempHist);
         }
-        
+            
         this->sumHueX.push_back(colSumHueX);
         this->sumHueY.push_back(colSumHueY);
         this->sumSat.push_back(colSumSat);
