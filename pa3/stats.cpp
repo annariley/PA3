@@ -12,6 +12,7 @@ stats::stats(PNG & im){
     vector<double> colSumSat;
     vector<double> colSumLum;
 
+    vector<int> hist;
     vector<int> tempHist;
     vector<vector<int>> colHist;
 
@@ -24,42 +25,51 @@ stats::stats(PNG & im){
 
         colHist.clear();
 
+        double tempSumHueX = 0;
+        double tempSumHueY = 0;
+        double tempSumSat = 0;
+        double tempSumLum = 0;
+
+        tempHist.clear();
+
+        // initialize an empty hist
+        for(int i = 0; i < NUM_BINS; i++) {
+            tempHist.push_back(0);
+        }   
+
         for(int y = 0; y < (int)im.height(); y++) {
 
-            double tempSumHueX = 0;
-            double tempSumHueY = 0;
-            double tempSumSat = 0;
-            double tempSumLum = 0;
+            pixel = im.getPixel(x, y);
+            double hRad = pixel->h * PI / 180;
 
-            tempHist.clear();
+            tempSumHueX += cos(hRad) * 180 / PI;
+            tempSumHueY += sin(hRad) * 180 / PI;
+            tempSumSat += pixel->s;
+            tempSumLum += pixel->l;
 
-            // initialize an empty hist
-            for(int i = 0; i < NUM_BINS; i++) {
-                tempHist.push_back(0);
-            }
+            int bin = (int)(pixel->h / 10);
+            tempHist[bin] = tempHist[bin] + 1;
 
-            for(int xSum = 0; xSum <= x; xSum++) {
-                for(int ySum = 0; ySum <= y; ySum++) {
+            if(x > 0) {
+                colSumHueX.push_back(this->sumHueX[x-1][y] + tempSumHueX);
+                colSumHueY.push_back(this->sumHueY[x-1][y] + tempSumHueY);
+                colSumSat.push_back(this->sumSat[x-1][y] + tempSumSat);
+                colSumLum.push_back(this->sumLum[x-1][y] + tempSumLum);
 
-                    pixel = im.getPixel(xSum, ySum);
-
-                    double hRad = pixel->h * PI / 180;
-                    tempSumHueX += cos(hRad) * 180 / PI;
-                    tempSumHueY += sin(hRad) * 180 / PI;
-                    tempSumSat += pixel->s;
-                    tempSumLum += pixel->l;
-
-                    int bin = (int)(pixel->h / 10);
-                    tempHist[bin] = tempHist[bin] + 1;
+                hist.clear();
+                for(int i = 0; i < NUM_BINS; i++){
+                    hist.push_back(this->hist[x-1][y][i] + tempHist[i]);
                 }
+                colHist.push_back(hist);
             }
+            else {
+                colSumHueX.push_back(tempSumHueX);
+                colSumHueY.push_back(tempSumHueY);
+                colSumSat.push_back(tempSumSat);
+                colSumLum.push_back(tempSumLum);
 
-            colSumHueX.push_back(tempSumHueX);
-            colSumHueY.push_back(tempSumHueY);
-            colSumSat.push_back(tempSumSat);
-            colSumLum.push_back(tempSumLum);
-
-            colHist.push_back(tempHist);
+                colHist.push_back(tempHist);
+            }
         }
             
         this->sumHueX.push_back(colSumHueX);
