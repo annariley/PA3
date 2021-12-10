@@ -94,26 +94,26 @@ HSLAPixel stats::getAvg(pair<int,int> ul, pair<int,int> lr){
         lum -= this->sumLum[ul.first-1][lr.second];
     }
     else if(ul.first == 0 && ul.second > 0) {
-        xHue -= this->sumHueX[lr.first][lr.second-1];
-        yHue -= this->sumHueY[lr.first][lr.second-1];
-        sat -= this->sumSat[lr.first][lr.second-1];
-        lum -= this->sumLum[lr.first][lr.second-1];
+        xHue -= this->sumHueX[lr.first][ul.second-1];
+        yHue -= this->sumHueY[lr.first][ul.second-1];
+        sat -= this->sumSat[lr.first][ul.second-1];
+        lum -= this->sumLum[lr.first][ul.second-1];
     }
     else if(ul.first > 0 && ul.second > 0) {
         xHue -= this->sumHueX[ul.first-1][lr.second];
-        xHue -= this->sumHueX[lr.first][lr.second-1];
+        xHue -= this->sumHueX[lr.first][ul.second-1];
         xHue += this->sumHueX[ul.first-1][ul.second-1];
 
         yHue -= this->sumHueY[ul.first-1][lr.second];
-        yHue -= this->sumHueY[lr.first][lr.second-1];
+        yHue -= this->sumHueY[lr.first][ul.second-1];
         yHue += this->sumHueY[ul.first-1][ul.second-1];
 
         sat -= this->sumSat[ul.first-1][lr.second];
-        sat -= this->sumSat[lr.first][lr.second-1];
+        sat -= this->sumSat[lr.first][ul.second-1];
         sat += this->sumSat[ul.first-1][ul.second-1];
 
         lum -= this->sumLum[ul.first-1][lr.second];
-        lum -= this->sumLum[lr.first][lr.second-1];
+        lum -= this->sumLum[lr.first][ul.second-1];
         lum += this->sumLum[ul.first-1][ul.second-1];
     }
 
@@ -150,14 +150,14 @@ double stats::entropy(pair<int,int> ul, pair<int,int> lr){
 
     else if(ul.first == 0 && ul.second > 0) {
         for(int i = 0; i < NUM_BINS; i++) {
-            distn[i] -= this->hist[lr.first][lr.second-1][i];
+            distn[i] -= this->hist[lr.first][ul.second-1][i];
         }
     }
 
     else if(ul.first > 0 && ul.second > 0) {
         for(int i = 0; i < NUM_BINS; i++) {
             distn[i] -= this->hist[ul.first-1][lr.second][i];
-            distn[i] -= this->hist[lr.first][lr.second-1][i];
+            distn[i] -= this->hist[lr.first][ul.second-1][i];
             distn[i] += this->hist[ul.first-1][ul.second-1][i];
         }
     }
