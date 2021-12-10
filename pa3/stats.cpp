@@ -31,6 +31,8 @@ stats::stats(PNG & im){
             double tempSumSat = 0;
             double tempSumLum = 0;
 
+            tempHist.clear();
+
             // initialize an empty hist
             for(int i = 0; i < NUM_BINS; i++) {
                 tempHist.push_back(0);
@@ -165,7 +167,7 @@ double stats::entropy(pair<int,int> ul, pair<int,int> lr){
 
     for(int i = 0; i < NUM_BINS; i++) {
         if (distn[i] > 0 ) 
-            E += ((double) distn[i]/(double) area) * log2((double) distn[i]/(double) area);
+            E -= ((double) distn[i]/(double) area) * log2((double) distn[i]/(double) area);
     }
     
     return E;
