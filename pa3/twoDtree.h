@@ -137,7 +137,8 @@ public:
    * You may want a recursive helper function for this one.
     */
    void prune(double tol);
-   void prune_recursive(double tol, HSLAPixel rootpix, Node * node);
+   void prune_recursive(double tol, Node * node);
+   bool should_prune(double tol, HSLAPixel rootpix, Node * node);
 
    /* =============== end of public PA3 FUNCTIONS =========================*/
 
@@ -169,7 +170,7 @@ private:
     */
    void clear();
 
-   void clear_recursive(Node * root);
+   void clear_recursive(Node * & root);
 
    /**
    * Copies the parameter other twoDtree into the current twoDtree.
@@ -178,7 +179,7 @@ private:
    * @param other The twoDtree to be copied.
    */
    void copy(const twoDtree & other);
-   void copy_recursive(Node * from, Node * to);
+   Node * copy_recursive(Node * from);
 
    /**
    * Private helper function for the constructor. Recursively builds

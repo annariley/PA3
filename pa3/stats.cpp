@@ -130,6 +130,9 @@ HSLAPixel stats::getAvg(pair<int,int> ul, pair<int,int> lr){
     avg.s = sat / area;
     avg.l = lum / area;
     avg.a = 1.0;
+    if(avg.h<0){
+        avg.h += 360;
+    }
 
     return avg;
 }

@@ -61,7 +61,30 @@ TEST_CASE("stats::basic entropy","[weight=1][part=stats]"){
 
     REQUIRE(result == 2);
 }
-
+TEST_CASE("basic 2dtree","[weight=1][part=stats]"){
+    PNG data; data.resize(4,4);
+    for (int i = 0; i < 4; i ++){
+        for (int j = 0; j < 4; j++){
+            HSLAPixel * p = data.getPixel(i,j);
+            p->h = 135 * j + i * 90;
+            p->s = 1.0;
+            p->l = 0.5;
+            p->a = 1.0;
+        }
+    }
+    twoDtree t1(data);
+    PNG out = t1.render();
+    REQUIRE(out==data);
+}
+TEST_CASE("twoDtree::basic ctor render simple","[weight=1][part=twoDtree]"){
+    PNG img;
+    img.readFromFile("images/smB.png");
+    twoDtree t1(img);
+    cout << "got to line 71" << endl;
+    PNG out = t1.render();
+    cout << "got to line 73" << endl;
+    REQUIRE(out==img);
+}
 TEST_CASE("twoDtree::basic ctor render","[weight=1][part=twoDtree]"){
     PNG img;
     img.readFromFile("images/ada.png");
@@ -77,12 +100,12 @@ TEST_CASE("twoDtree::basic copy","[weight=1][part=twoDtree]"){
 
     twoDtree t1(img);
     twoDtree t1copy(t1);
-
+    cout << "GOT TO LINE 103 OF TEST";
     PNG out = t1copy.render();
 
     REQUIRE(out==img);
 }
-/*
+
 TEST_CASE("twoDtree::basic prune","[weight=1][part=twoDtree]"){
     PNG img;
     img.readFromFile("images/color.png");
@@ -94,7 +117,7 @@ TEST_CASE("twoDtree::basic prune","[weight=1][part=twoDtree]"){
     t1.prune(.05);
     PNG result = t1.render();
     PNG expected; expected.readFromFile("images/given-color.05.png");
+    result.writeToFile("images/--result_given-color.05.png");
 
     REQUIRE(expected==result);
 }
-*/
